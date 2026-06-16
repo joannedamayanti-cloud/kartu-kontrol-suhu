@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kartu Kontrol Suhu Ruangan - Versi 3</title>
+<style>
+:root{--primary:#123f63;--primary2:#1f6f9f;--bg:#eef3f7;--card:#fff;--danger:#a62828}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#111}
+.app{display:flex;min-height:100vh}
+.sidebar{width:280px;background:var(--primary);color:white;padding:18px;position:fixed;left:0;top:0;bottom:0;overflow:auto}
+.sidebar h1{font-size:20px;margin:0 0 6px}.sidebar p{font-size:12px;opacity:.9;margin:0 0 18px}
+.room-btn{width:100%;text-align:left;margin:8px 0;padding:11px;border:1px solid #ffffff33;border-radius:9px;background:#ffffff14;color:white;cursor:pointer}
+.room-btn.active{background:white;color:var(--primary);font-weight:bold}
+.content{margin-left:280px;padding:18px;width:calc(100% - 280px)}
+.topbar,.card{background:white;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0001}
+.topbar{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.topbar h2{margin:0;color:var(--primary)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.settings{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+label{font-size:13px;font-weight:bold}
+input,select,button{width:100%;padding:10px;border:1px solid #b9c5d0;border-radius:8px;font-size:14px}
+button{border:0;background:var(--primary);color:white;font-weight:bold;cursor:pointer}
+button:hover{background:var(--primary2)}
+button.danger{background:var(--danger)}
+button.danger:hover{background:#7e1f1f}
+.actions{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:12px}
+.small{font-size:12px;color:#555}.status{font-size:13px;margin-top:10px;color:#217346;font-weight:bold}
+.history{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.history button{background:var(--primary);color:white}.history button.active{background:var(--primary2)}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #ccc;padding:7px;text-align:center}th{background:#e7eef7}
+.report-paper{padding:8px}.report-head{display:grid;grid-template-columns:1fr 2fr 1fr;align-items:start;margin-bottom:8px}
+.report-head .left{font-size:12px}.report-head .center{text-align:center}.report-head h2,.report-head h3{margin:2px}
+.meta{display:flex;justify-content:space-between;margin:8px 0;font-size:13px}
+canvas{width:100%;height:430px;border:1px solid #111}
+.signature{display:flex;justify-content:space-between;margin-top:24px;text-align:center;font-size:13px}.signature div{width:42%}.space{height:68px}
+.badge{display:inline-block;padding:4px 8px;border-radius:20px;background:#e7eef7;color:#123f63;font-size:12px;font-weight:bold}
+@media(max-width:900px){.sidebar{position:relative;width:100%}.app{display:block}.content{margin-left:0;width:100%}.grid,.actions,.history,.settings{grid-template-columns:1fr 1fr}}
+@media print{body{background:white}.sidebar,.topbar,.input-card,.history-card,.data-card,.settings-card,.no-print{display:none!important}.content{margin:0;width:100%;padding:0}.card{box-shadow:none;border-radius:0;padding:0;margin:0}@page{size:A4 landscape;margin:8mm}canvas{height:365px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar"><h1>Kontrol Suhu</h1><p>Versi 3 - multi ruangan</p><div id="roomMenu"></div></aside>
+<main class="content">
+<section class="topbar">
+<div><h2 id="currentRoomTitle">-</h2><div class="small">Data dapat disimpan lokal atau disambungkan ke Google Sheets.</div></div>
+<button onclick="window.print()" style="max-width:180px">Print Rekap</button>
+</section>
+
+<section class="card settings-card">
+<h3>Pengaturan Aplikasi</h3>
+<div class="settings">
+<div><label>Nama Rumah Sakit/Instalasi</label><input id="hospitalName" value="RUMAH SAKIT Tk. II 04.05.01 dr SOEDJONO"></div>
+<div><label>Sub Unit</label><input id="unitName" value="INSTALASI PENUNJANG PERAWATAN"></div>
+<div><label>Lokasi Tanda Tangan</label><input id="cityName" value="Magelang"></div>
+<div><label>Koordinator</label><input id="coordName" placeholder="Nama Koordinator"></div>
+<div><label>Penanggung Jawab</label><input id="pjName" placeholder="Nama Penanggung Jawab"></div>
+<div><label>Tanggal tanda tangan</label><select id="dateMode"><option value="blank">Dikosongkan / isi manual</option><option value="last">Otomatis tanggal terakhir bulan</option></select></div>
+<div style="grid-column:1/-1"><label>Link Web App Google Apps Script</label><input id="apiUrl" placeholder="Tempel URL Web App Google Apps Script di sini"></div>
+</div>
+<div class="actions" style="grid-template-columns:repeat(4,1fr)">
+<button onclick="saveSettings()">Simpan Pengaturan</button>
+<button onclick="syncFromCloud()">Ambil Data Online</button>
+<button onclick="testConnection()">Tes Koneksi</button>
+<button onclick="loadMonth()">Terapkan</button>
+</div>
+<p class="small">Tanpa link Google Apps Script, data tetap tersimpan di browser. Dengan link tersebut, data dapat dipakai di beberapa komputer/HP.</p>
+</section>
+
+<section class="card input-card">
+<h3>Input Data Suhu <span id="modeBadge" class="badge">Mode lokal</span></h3>
+<div class="grid">
+<div><label>Bulan Rekap</label><input id="month" type="month" onchange="loadMonth()"></div>
+<div><label>Tanggal Input</label><input id="date" type="date"></div>
+<div><label>Inisial Petugas</label><input id="initial" placeholder="Contoh: A"></div>
+<div><label>Keterangan</label><input id="note" placeholder="Opsional"></div>
+<div><label>Jam Pagi</label><input id="timeMorning" type="time"></div>
+<div><label>Suhu Pagi (°C)</label><input id="tempMorning" type="number" step="0.1"></div>
+<div><label>Jam Sore</label><input id="timeEvening" type="time"></div>
+<div><label>Suhu Sore (°C)</label><input id="tempEvening" type="number" step="0.1"></div>
+</div>
+<div class="actions">
+<button onclick="saveData()">Simpan</button>
+<button onclick="loadMonth()">Tampilkan</button>
+<button onclick="exportCSV()">Export CSV</button>
+<button onclick="resetInput()">Kosongkan Input</button>
+<button class="danger" onclick="clearMonth()">Hapus Bulan Ini</button>
+</div>
+<div id="status" class="status"></div>
+</section>
+
+<section class="card history-card"><h3>Riwayat Bulan Tersimpan</h3><div id="historyList" class="history"></div></section>
+
+<section class="card report">
+<div class="report-paper">
+<div class="report-head">
+<div class="left"><div id="kopHospital"></div><div id="kopUnit"></div></div>
+<div class="center"><h2>KARTU KONTROL SUHU RUANGAN</h2><h3 id="reportMonth">BULAN: -</h3></div><div></div>
+</div>
+<div class="meta"><div><b>Ruangan:</b> <span id="reportRoom">-</span></div><div><b>Tahun:</b> <span id="reportYear">-</span></div></div>
+<canvas id="chart" width="1200" height="430"></canvas>
+<div class="small">Keterangan: garis biru = pagi, garis merah = sore.</div>
+<div class="signature">
+<div><p>Mengetahui,<br>Koordinator Gizi</p><div class="space"></div><p id="coordText">(........................................)</p></div>
+<div><p id="signDate">Magelang, ........................</p><p>Penanggung Jawab</p><div class="space"></div><p id="pjText">(........................................)</p></div>
+</div>
+</div>
+</section>
+
+<section class="card data-card">
+<h3>Data Tersimpan <span class="small">(tidak ikut tercetak)</span></h3>
+<table id="dataTable"><thead><tr><th>Tanggal</th><th>Jam Pagi</th><th>Suhu Pagi</th><th>Jam Sore</th><th>Suhu Sore</th><th>Inisial</th><th>Keterangan</th><th>Aksi</th></tr></thead><tbody></tbody></table>
+</section>
+</main></div>
+
+<script>
+const rooms=["Gudang Bahan Makanan Basah","Gudang Bahan Makanan Kering","Dapur Susu","Dapur Pemasak","Ruangan Ahli Gizi"];
+const monthNames=["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
+let currentRoom=rooms[0];
+function slug(x){return x.toLowerCase().replaceAll(" ","_").replaceAll("/","_")}
+function settingKey(){return "kartu_suhu_v3_settings"}
+function dataKey(){return "kartu_suhu_v3_"+slug(currentRoom)+"_"+document.getElementById("month").value}
+function getData(){return JSON.parse(localStorage.getItem(dataKey())||"[]")}
+function setData(d){localStorage.setItem(dataKey(),JSON.stringify(d))}
+function getSettings(){return {hospitalName:hospitalName.value,unitName:unitName.value,cityName:cityName.value,coordName:coordName.value,pjName:pjName.value,dateMode:dateMode.value,apiUrl:apiUrl.value.trim()}}
+function saveSettings(){localStorage.setItem(settingKey(),JSON.stringify(getSettings()));loadMonth();status.innerText="Pengaturan berhasil disimpan."}
+function loadSettings(){const s=JSON.parse(localStorage.getItem(settingKey())||"{}");Object.keys(s).forEach(k=>{if(document.getElementById(k))document.getElementById(k).value=s[k]})}
+function api(){return getSettings().apiUrl}
+async function cloudPost(action,payload={}){const url=api();if(!url)throw new Error("URL Google Apps Script belum diisi.");const res=await fetch(url,{method:"POST",body:JSON.stringify({action,...payload})});return await res.json()}
+function init(){rooms.forEach(r=>{const b=document.createElement("button");b.className="room-btn";b.textContent=r;b.onclick=()=>{currentRoom=r;loadMonth()};roomMenu.appendChild(b)});const now=new Date();month.value=now.toISOString().slice(0,7);date.value=now.toISOString().slice(0,10);timeMorning.value="07:00";timeEvening.value="14:00";loadSettings();loadMonth()}
+function updateMenu(){document.querySelectorAll(".room-btn").forEach(b=>b.classList.toggle("active",b.textContent===currentRoom));currentRoomTitle.innerText=currentRoom;modeBadge.innerText=api()?"Mode online Google Sheets":"Mode lokal"}
+async function saveData(){
+const row={room:currentRoom,month:month.value,date:date.value,initial:initial.value,note:note.value,timeMorning:timeMorning.value,tempMorning:tempMorning.value,timeEvening:timeEvening.value,tempEvening:tempEvening.value};
+if(!row.date){alert("Tanggal wajib diisi.");return}
+let data=getData().filter(x=>x.date!==row.date);data.push(row);data.sort((a,b)=>a.date.localeCompare(b.date));setData(data);
+if(api()){try{await cloudPost("save",{row});status.innerText="Data berhasil disimpan lokal dan online."}catch(e){status.innerText="Data lokal tersimpan, tetapi online gagal: "+e.message}}
+else status.innerText="Data berhasil disimpan lokal.";
+loadMonth();
+}
+async function syncFromCloud(){if(!api()){alert("Isi URL Google Apps Script terlebih dahulu.");return}try{const out=await cloudPost("list",{room:currentRoom,month:month.value});if(out.ok){setData(out.data||[]);status.innerText="Data online berhasil diambil.";loadMonth()}else status.innerText="Gagal: "+out.error}catch(e){status.innerText="Koneksi gagal: "+e.message}}
+async function testConnection(){try{const out=await cloudPost("ping",{});status.innerText=out.ok?"Koneksi Google Sheets berhasil.":"Koneksi gagal."; }catch(e){status.innerText="Koneksi gagal: "+e.message}}
+function resetInput(){["initial","note","tempMorning","tempEvening"].forEach(id=>document.getElementById(id).value="")}
+function clearMonth(){if(confirm("Hapus data bulan ini untuk "+currentRoom+"?")){localStorage.removeItem(dataKey());loadMonth()}}
+function deleteDate(d){if(confirm("Hapus data tanggal "+d+"?")){setData(getData().filter(x=>x.date!==d));loadMonth()}}
+function formatLastDate(y,m){return new Date(y,m,0).getDate()+" "+monthNames[m-1].charAt(0)+monthNames[m-1].slice(1).toLowerCase()+" "+y}
+function loadMonth(){updateMenu();const [y,mo]=month.value.split("-").map(Number);const s=getSettings();kopHospital.innerText=s.hospitalName;kopUnit.innerText=s.unitName;reportRoom.innerText=currentRoom;reportYear.innerText=y;reportMonth.innerText="BULAN: "+monthNames[mo-1]+" "+y;coordText.innerText=s.coordName?"("+s.coordName+")":"(........................................)";pjText.innerText=s.pjName?"("+s.pjName+")":"(........................................)";signDate.innerText=s.dateMode==="last"?(s.cityName+", "+formatLastDate(y,mo)):(s.cityName+", ........................");const data=getData();document.querySelector("#dataTable tbody").innerHTML=data.map(r=>`<tr><td>${Number(r.date.slice(8,10))}</td><td>${r.timeMorning||"-"}</td><td>${r.tempMorning||"-"} °C</td><td>${r.timeEvening||"-"}</td><td>${r.tempEvening||"-"} °C</td><td>${r.initial||"-"}</td><td>${r.note||"-"}</td><td><button class="danger" onclick="deleteDate('${r.date}')">Hapus</button></td></tr>`).join("");drawChart(data,y,mo);renderHistory()}
+function renderHistory(){const prefix="kartu_suhu_v3_"+slug(currentRoom)+"_";let months=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith(prefix))months.push(k.replace(prefix,""))}months.sort().reverse();historyList.innerHTML=months.length?months.map(m=>`<button class="${m===month.value?'active':''}" onclick="month.value='${m}';loadMonth()">${m}</button>`).join(""):'<div class="small">Belum ada riwayat bulan tersimpan.</div>'}
+function exportCSV(){let csv="Ruangan,Tanggal,Jam Pagi,Suhu Pagi,Jam Sore,Suhu Sore,Inisial,Keterangan\n";getData().forEach(r=>csv+=`"${currentRoom}",${r.date},${r.timeMorning||""},${r.tempMorning||""},${r.timeEvening||""},${r.tempEvening||""},${r.initial||""},"${r.note||""}"\n`);const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download="rekap_suhu_"+slug(currentRoom)+"_"+month.value+".csv";a.click()}
+function drawChart(data,year,monthNum){const canvas=document.getElementById("chart"),ctx=canvas.getContext("2d"),W=canvas.width,H=canvas.height;ctx.clearRect(0,0,W,H);const left=58,right=105,top=25,bottom=58,minT=0,maxT=40,days=new Date(year,monthNum,0).getDate(),plotW=W-left-right,plotH=H-top-bottom;ctx.font="13px Arial";for(let t=minT;t<=maxT;t+=5){const y=top+plotH-(t-minT)/(maxT-minT)*plotH;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(W-right,y);ctx.strokeStyle="#d7d7d7";ctx.stroke();ctx.fillStyle="#111";ctx.fillText(t+"°",12,y+4)}for(let d=1;d<=days;d++){const x=left+(d-1)/(days-1)*plotW;ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x,top+plotH);ctx.strokeStyle="#e6e6e6";ctx.stroke();ctx.fillStyle="#111";ctx.fillText(d,x-4,H-27)}ctx.strokeStyle="#111";ctx.strokeRect(left,top,plotW,plotH);ctx.fillText("SUHU °C",8,17);ctx.fillText("TANGGAL",left,H-8);function xy(temp,day){return [left+(day-1)/(days-1)*plotW,top+plotH-(temp-minT)/(maxT-minT)*plotH]}function line(field,color){ctx.beginPath();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2;let started=false;data.forEach(r=>{const temp=parseFloat(r[field]);if(isNaN(temp))return;const p=xy(temp,Number(r.date.slice(8,10)));if(!started){ctx.moveTo(p[0],p[1]);started=true}else ctx.lineTo(p[0],p[1])});ctx.stroke();data.forEach(r=>{const temp=parseFloat(r[field]);if(isNaN(temp))return;const p=xy(temp,Number(r.date.slice(8,10)));ctx.beginPath();ctx.arc(p[0],p[1],3,0,Math.PI*2);ctx.fill()})}line("tempMorning","#1f4eaa");line("tempEvening","#b23b3b");ctx.fillStyle="#1f4eaa";ctx.fillRect(W-82,30,14,14);ctx.fillStyle="#111";ctx.fillText("PAGI",W-62,42);ctx.fillStyle="#b23b3b";ctx.fillRect(W-82,55,14,14);ctx.fillStyle="#111";ctx.fillText("SORE",W-62,67)}
+init();
+</script>
+</body>
+</html>
