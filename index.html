@@ -1,147 +1,129 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kartu Kontrol Suhu dan Kelembaban RST</title>
   <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/dashboard.css" />
-  <link rel="stylesheet" href="css/print.css" />
-  <link rel="stylesheet" href="css/responsive.css" />
 </head>
 <body>
   <aside class="sidebar">
-    <div class="brand-card">
-      <img src="logo-rst.jpg" alt="Logo RST dr Soedjono" />
-    </div>
+    <div class="logo-box"><img src="logo-rst.jpg" alt="Logo RST dr Soedjono" /></div>
     <h1>Kontrol Suhu</h1>
-    <p class="version">Tahap 1 - kerangka proyek</p>
+    <p class="version">Proyek aman tahap 1</p>
 
-    <div class="section-title">Pilih Gudang / Ruangan</div>
-    <nav id="roomNav" class="room-nav"></nav>
+    <p class="side-title">Pilih Gudang / Ruangan</p>
+    <nav id="roomList" class="room-list"></nav>
 
-    <div class="section-title separator">Menu</div>
-    <a class="nav-link" href="#dashboard">📊 Dashboard</a>
-    <a class="nav-link" href="#rekap">📅 Rekap Bulanan</a>
-    <a class="nav-link" href="#settings">⚙️ Pengaturan</a>
-    <a class="nav-link" href="#about">ℹ️ Tentang Aplikasi</a>
+    <div class="divider"></div>
+    <a href="#dashboard">📊 Dashboard</a>
+    <a href="#grafik">📈 Grafik Bulanan</a>
+    <a href="#input">📝 Input Data</a>
+    <a href="#pengaturan">⚙️ Pengaturan</a>
 
-    <div class="clock-card">
-      <div id="currentDate">-</div>
-      <strong id="currentTime">-</strong>
+    <div class="clock-box">
+      <div id="todayText">-</div>
+      <div id="clockText">-</div>
     </div>
   </aside>
 
   <main class="main">
-    <header class="top-card">
+    <section class="hero card">
       <div>
         <h2>Monitoring Gudang <em>Instalasi Gizi</em></h2>
-        <p id="appSubtitle">RUMAH SAKIT Tk. II 04.05.01 dr SOEDJONO - INSTALASI GIZI.</p>
-        <p>Kerangka awal aplikasi monitoring suhu dan kelembaban ruangan.</p>
+        <p id="subHeader">RUMAH SAKIT Tk. II 04.05.01 dr SOEDJONO - INSTALASI GIZI.</p>
+        <p>Rekap suhu dan kelembaban ruangan/gudang.</p>
       </div>
-      <button id="printBtn" class="btn btn-primary">🖨️ Cetak Gudang Ini</button>
-    </header>
+      <button id="printSelected" class="btn dark">🖨️ Cetak Gudang Ini</button>
+    </section>
 
     <section id="dashboard" class="card">
-      <div class="card-head">
-        <h3>Dashboard Bulan Berjalan <span id="monthLabel"></span></h3>
-        <div class="legend">
-          <span><i class="dot green"></i>Sesuai</span>
-          <span><i class="dot yellow"></i>Hampir Batas</span>
-          <span><i class="dot red"></i>Tidak Sesuai</span>
-          <span><i class="dot gray"></i>Belum Ada Data</span>
-        </div>
+      <div class="section-head">
+        <h2>Dashboard Bulan Berjalan <span id="monthLabel"></span></h2>
+        <div class="legend"><span class="dot ok"></span>Sesuai <span class="dot warn"></span>Hampir Batas <span class="dot bad"></span>Tidak Sesuai <span class="dot none"></span>Belum Ada Data</div>
       </div>
       <div id="dashboardCards" class="dashboard-grid"></div>
     </section>
 
-    <section id="rekap" class="card">
-      <div class="card-head">
+    <section id="grafik" class="card">
+      <div class="section-head">
         <div>
-          <h3 id="chartTitle">Grafik Rekap Bulanan</h3>
-          <p>Grafik sementara menggunakan data lokal. Pada tahap berikutnya akan membaca Google Sheets.</p>
+          <h2 id="chartTitle">Grafik Rekap Bulanan</h2>
+          <p>Grafik mengikuti gudang/ruangan dan bulan rekap yang dipilih.</p>
+        </div>
+        <div class="print-tools">
+          <select id="printType">
+            <option value="suhu">Kartu Kontrol Suhu</option>
+            <option value="rh">Kartu Kontrol Kelembaban</option>
+          </select>
         </div>
       </div>
       <div class="chart-grid">
-        <div>
-          <h4>Grafik Suhu</h4>
-          <canvas id="temperatureChart" width="720" height="360"></canvas>
-        </div>
-        <div>
-          <h4>Grafik Kelembaban</h4>
-          <canvas id="humidityChart" width="720" height="360"></canvas>
-        </div>
+        <div><h3>Grafik Suhu</h3><canvas id="tempChart" width="900" height="430"></canvas></div>
+        <div><h3>Grafik Kelembaban</h3><canvas id="rhChart" width="900" height="430"></canvas></div>
       </div>
     </section>
 
-    <section id="settings" class="card">
-      <h3>Pengaturan Aplikasi</h3>
-      <div class="form-grid settings-grid">
+    <section id="pengaturan" class="card">
+      <h2>Pengaturan Aplikasi</h2>
+      <div class="form-grid three">
         <label>Nama Rumah Sakit/Instalasi<input id="hospitalName" value="RUMAH SAKIT Tk. II 04.05.01 dr SOEDJONO" /></label>
-        <label>Sub Unit<input id="subUnit" value="INSTALASI GIZI" /></label>
+        <label>Sub Unit<input id="unitName" value="INSTALASI GIZI" /></label>
         <label>Lokasi Tanda Tangan<input id="signLocation" value="Magelang" /></label>
-        <label>Koordinator<input id="coordinator" placeholder="Nama Koordinator" /></label>
-        <label>Penanggung Jawab<input id="responsible" placeholder="Nama Penanggung Jawab" /></label>
+        <label>Koordinator<input id="coordinatorName" placeholder="Nama Koordinator" /></label>
+        <label>Penanggung Jawab<input id="responsibleName" placeholder="Nama Penanggung Jawab" /></label>
         <label>Tanggal tanda tangan
-          <select id="signatureDateMode">
+          <select id="signDateMode">
             <option value="lastDay">Otomatis tanggal terakhir bulan rekap</option>
             <option value="today">Otomatis hari ini</option>
-            <option value="manual">Dikosongkan / isi manual</option>
+            <option value="blank">Dikosongkan / isi manual</option>
           </select>
         </label>
-        <label class="full">Link Web App Google Apps Script<input id="webAppUrl" placeholder="Akan dipakai pada tahap integrasi Google Sheets" /></label>
       </div>
+      <label>Link Web App Google Apps Script<input id="webAppUrl" placeholder="Tempel URL Web App Google Apps Script di sini" /></label>
       <div class="button-row">
-        <button id="saveSettings" class="btn btn-primary">💾 Simpan Pengaturan</button>
-        <button id="testConnection" class="btn btn-blue">📶 Tes Koneksi</button>
-        <button id="applySettings" class="btn btn-red">✅ Terapkan</button>
+        <button id="saveSettings" class="btn dark">💾 Simpan Pengaturan</button>
+        <button id="loadOnline" class="btn green">☁️ Ambil Data Online</button>
+        <button id="testConnection" class="btn blue">📶 Tes Koneksi</button>
+        <button id="applySettings" class="btn red">✅ Terapkan</button>
       </div>
-      <p id="settingsStatus" class="status-text"></p>
+      <p id="connectionStatus" class="status-text"></p>
     </section>
 
-    <section class="card">
-      <h3>Input Data Monitoring <span class="badge">Mode lokal tahap 1</span></h3>
-      <form id="monitoringForm" class="form-grid">
-        <label>Bulan Rekap<select id="monthInput"></select></label>
-        <label>Tanggal Input<input id="dateInput" type="date" required /></label>
-        <label>Jam Input<input id="timeInput" type="time" required /></label>
-        <label>Nama Gudang/Ruangan<select id="roomInput"></select></label>
-        <label>Suhu (°C)<input id="temperatureInput" type="number" step="0.1" placeholder="Contoh: 24.5" required /></label>
-        <label>Kelembaban (%RH)<input id="humidityInput" type="number" step="0.1" placeholder="Contoh: 60" required /></label>
-        <label>Status Suhu<input id="temperatureStatus" readonly value="Belum Ada Data" /></label>
-        <label>Status Kelembaban<input id="humidityStatus" readonly value="Belum Ada Data" /></label>
-        <label class="full">Keterangan<textarea id="noteInput" rows="2" placeholder="Contoh: kondisi normal / AC mati / pintu sering dibuka"></textarea></label>
-        <label class="full">Nama Petugas<input id="officerInput" placeholder="Nama petugas" required /></label>
+    <section id="input" class="card">
+      <h2>Input Data Monitoring <span id="modeBadge" class="badge">Mode lokal</span></h2>
+      <form id="monitoringForm">
+        <div class="form-grid four">
+          <label>Bulan Rekap<select id="monthInput" required></select></label>
+          <label>Tanggal Input<input type="date" id="dateInput" required /></label>
+          <label>Jam Input<input type="time" id="timeInput" required /></label>
+          <label>Nama Gudang/Ruangan<select id="roomInput" required></select></label>
+          <label>Suhu (°C)<input type="number" step="0.1" id="tempInput" placeholder="Contoh: 24.5" required /></label>
+          <label>Kelembaban (%RH)<input type="number" step="0.1" id="rhInput" placeholder="Contoh: 60" required /></label>
+          <label>Status Suhu<input id="tempStatus" readonly /></label>
+          <label>Status Kelembaban<input id="rhStatus" readonly /></label>
+        </div>
+        <div class="form-grid two">
+          <label>Keterangan<textarea id="noteInput" placeholder="Contoh: kondisi normal / AC mati / pintu sering dibuka"></textarea></label>
+          <label>Nama Petugas<textarea id="officerInput" placeholder="Nama petugas" required></textarea></label>
+        </div>
+        <div class="button-row three-buttons">
+          <button class="btn dark" type="submit">💾 Simpan Data</button>
+          <button class="btn yellow" type="button" id="resetForm">⟳ Reset Form</button>
+          <button class="btn light" type="button" id="showToday">☷ Lihat Data Hari Ini</button>
+        </div>
       </form>
-      <div class="button-row">
-        <button id="saveData" class="btn btn-primary">💾 Simpan Data Lokal</button>
-        <button id="resetForm" class="btn btn-yellow">⟳ Reset Form</button>
-        <button id="showToday" class="btn btn-light">☰ Lihat Data Hari Ini</button>
-      </div>
-      <p id="formStatus" class="status-text"></p>
     </section>
 
     <section class="card">
-      <h3>Rekap Data Lokal</h3>
-      <div class="table-wrap">
-        <table id="dataTable">
-          <thead><tr><th>Tanggal</th><th>Jam</th><th>Gudang</th><th>Suhu</th><th>Status Suhu</th><th>RH</th><th>Status RH</th><th>Petugas</th><th>Keterangan</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+      <h2>Rekap Data</h2>
+      <div class="table-wrap"><table id="dataTable"><thead><tr><th>Tanggal</th><th>Jam</th><th>Gudang</th><th>Suhu</th><th>Status Suhu</th><th>RH</th><th>Status RH</th><th>Petugas</th><th>Keterangan</th></tr></thead><tbody></tbody></table></div>
     </section>
 
-    <footer id="about">© 2026 Instalasi Gizi - RST dr Soedjono. Tahap 1: kerangka UI dan data lokal.</footer>
+    <footer>© 2026 Instalasi Gizi - RST dr Soedjono. Proyek web monitoring suhu dan kelembaban.</footer>
   </main>
 
   <section id="printArea" class="print-area"></section>
-
-  <script src="js/config.js"></script>
-  <script src="js/util.js"></script>
-  <script src="js/chart.js"></script>
-  <script src="js/dashboard.js"></script>
-  <script src="js/print.js"></script>
-  <script src="js/spreadsheet.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
