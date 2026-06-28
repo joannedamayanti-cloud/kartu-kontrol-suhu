@@ -1,206 +1,126 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rekap Suhu dan Kelembaban Gudang</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7f6;
-      margin: 0;
-      padding: 0;
-    }
-
-    .container {
-      max-width: 520px;
-      margin: 30px auto;
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 14px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 18px;
-    }
-
-    .header h2 {
-      color: #2e5d50;
-      margin: 0;
-      font-size: 22px;
-    }
-
-    .header p {
-      color: #666;
-      margin: 8px 0 0;
-      font-size: 14px;
-    }
-
-    label {
-      font-weight: bold;
-      margin-top: 12px;
-      display: block;
-      color: #333;
-    }
-
-    input, select, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border: 1px solid #cfcfcf;
-      border-radius: 8px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #2e5d50;
-      box-shadow: 0 0 0 2px rgba(46, 93, 80, 0.15);
-    }
-
-    button {
-      background: #2e5d50;
-      color: white;
-      border: none;
-      margin-top: 20px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background: #244a40;
-    }
-
-    .status {
-      margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
-      color: #2e5d50;
-    }
-
-    .note {
-      font-size: 12px;
-      color: #666;
-      margin-top: 4px;
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 16px;
-      font-size: 12px;
-      color: #777;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kartu Kontrol Suhu dan Kelembaban - Versi 5</title>
+<style>
+:root{--primary:#15496b;--primary-dark:#0f3b58;--bg:#eef3f6;--card:#fff;--line:#d8e3ec;--text:#0f1720;--muted:#5b6770;--ok:#198754;--warn:#b7791f;--bad:#c62828}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}.layout{display:flex;min-height:100vh}.sidebar{width:260px;background:var(--primary);color:white;padding:24px 20px;position:fixed;top:0;bottom:0;left:0}.sidebar h1{font-size:24px;margin:0 0 8px}.sidebar p{margin:0;font-size:14px}.main{margin-left:260px;width:calc(100% - 260px);padding:22px}.card{background:var(--card);border-radius:14px;padding:20px;box-shadow:0 3px 14px rgba(24,55,76,.08);margin-bottom:18px}.topbar{display:flex;align-items:center;justify-content:space-between}.title h2{margin:0;color:#083b66;font-size:28px}.title p{margin:4px 0 0;color:#333}.btn{background:var(--primary);color:white;border:0;border-radius:8px;padding:11px 18px;font-weight:700;cursor:pointer}.btn:hover{background:var(--primary-dark)}.btn.secondary{background:#64748b}.btn.danger{background:#b42318}.section-title{margin:0 0 18px;font-size:22px}.dashboard{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.dash-item{border:1px solid #cfe0ed;background:#f6fafc;border-radius:10px;padding:13px}.dash-item strong{display:block;color:#083b66;font-size:18px;line-height:1.08}.dash-item span{display:block;margin-top:4px}.small-status{font-size:13px;color:#334155;margin-top:8px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.grid.two{grid-template-columns:repeat(2,1fr)}.grid.four{grid-template-columns:repeat(4,1fr)}label{display:block;font-weight:700;margin-bottom:5px;font-size:14px}input,select,textarea{width:100%;border:1px solid #b9c9d6;border-radius:8px;padding:11px;font-size:15px;background:white}textarea{min-height:75px;resize:vertical}.actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.badge{display:inline-block;padding:4px 9px;border-radius:999px;font-size:12px;font-weight:700;background:#e7f0f8;color:var(--primary)}.status-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}.status-box{border-radius:10px;padding:12px;border:1px solid var(--line);background:#f8fafc}.status-box.ok{border-color:#b7e2c8;background:#f1fff5;color:var(--ok)}.status-box.warn{border-color:#f4d38b;background:#fff9e8;color:var(--warn)}.status-box.bad{border-color:#f1b7b7;background:#fff1f1;color:var(--bad)}.status-box strong{display:block;margin-bottom:4px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px;background:white}th,td{border:1px solid #d8e3ec;padding:9px;text-align:left}th{background:#eaf2f8;color:#083b66}.message{margin-top:12px;font-weight:700}.message.ok{color:var(--ok)}.message.bad{color:var(--bad)}@media(max-width:1000px){.sidebar{position:relative;width:100%;height:auto}.layout{display:block}.main{margin-left:0;width:100%;padding:14px}.dashboard,.grid,.grid.two,.grid.four,.actions,.status-row{grid-template-columns:1fr}.topbar{display:block}.topbar .btn{margin-top:12px;width:100%}}@media print{.sidebar,.no-print,.actions,.settings-card,.input-card{display:none!important}.main{margin:0;width:100%;padding:0}.card{box-shadow:none;border:0}.dashboard{display:none}body{background:white}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h2>Rekap Suhu dan Kelembaban Gudang</h2>
-      <p>Unit Gizi Rumah Sakit</p>
-    </div>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>Kontrol Suhu</h1>
+    <p>Versi 5 - suhu & kelembaban</p>
+  </aside>
+  <main class="main">
+    <section class="card topbar">
+      <div class="title">
+        <h2 id="judulGudang">Monitoring Gudang Instalasi Gizi</h2>
+        <p id="subJudul">Rekap suhu dan kelembaban ruangan Instalasi Gizi.</p>
+      </div>
+      <button class="btn no-print" onclick="window.print()">Print Rekap</button>
+    </section>
 
-    <form id="formRekap">
-      <label for="tanggal">Tanggal</label>
-      <input type="date" id="tanggal" name="tanggal" required />
+    <section class="card">
+      <h3 class="section-title">Dashboard Bulan Berjalan</h3>
+      <div class="dashboard" id="dashboard"></div>
+    </section>
 
-      <label for="waktu">Waktu</label>
-      <input type="time" id="waktu" name="waktu" required />
+    <section class="card settings-card">
+      <h3 class="section-title">Pengaturan Aplikasi</h3>
+      <div class="grid">
+        <div><label>Nama Rumah Sakit/Instalasi</label><input id="namaRS" value="RUMAH SAKIT Tk. II 04.05.01 dr SOEDJONO"></div>
+        <div><label>Sub Unit</label><input id="subUnit" value="INSTALASI GIZI"></div>
+        <div><label>Lokasi Tanda Tangan</label><input id="lokasiTTD" value="Magelang"></div>
+        <div><label>Koordinator</label><input id="koordinator" placeholder="Nama Koordinator"></div>
+        <div><label>Penanggung Jawab</label><input id="pj" placeholder="Nama Penanggung Jawab"></div>
+        <div><label>Tanggal tanda tangan</label><select id="tglTTD"><option value="manual">Dikosongkan / isi manual</option><option value="today">Tanggal hari ini</option></select></div>
+      </div>
+      <label style="margin-top:12px">Link Web App Google Apps Script</label>
+      <input id="scriptUrl" placeholder="Tempel URL Web App Google Apps Script di sini">
+      <div class="actions">
+        <button class="btn" onclick="saveSettings()">Simpan Pengaturan</button>
+        <button class="btn" onclick="loadOnlineData()">Ambil Data Online</button>
+        <button class="btn" onclick="testConnection()">Tes Koneksi</button>
+        <button class="btn" onclick="applySettings()">Terapkan</button>
+      </div>
+      <div id="settingMsg" class="message"></div>
+    </section>
 
-      <label for="gudang">Nama Gudang</label>
-      <select id="gudang" name="gudang" required>
-        <option value="">-- Pilih Gudang --</option>
-        <option value="Gudang Kering">Gudang Kering</option>
-        <option value="Gudang Basah">Gudang Basah</option>
-        <option value="Gudang Sayur dan Buah">Gudang Sayur dan Buah</option>
-        <option value="Gudang Chiller">Gudang Chiller</option>
-        <option value="Gudang Freezer">Gudang Freezer</option>
-      </select>
+    <section class="card input-card">
+      <h3 class="section-title">Input Data Monitoring <span class="badge" id="modeBadge">Mode lokal</span></h3>
+      <form id="formInput">
+        <div class="grid four">
+          <div><label>Bulan Rekap</label><input type="month" id="bulanRekap" required></div>
+          <div><label>Tanggal Input</label><input type="date" id="tanggal" required></div>
+          <div><label>Jam Input</label><input type="time" id="jam" required></div>
+          <div><label>Nama Gudang/Ruangan</label><select id="gudang" required></select></div>
+        </div>
+        <div class="grid four" style="margin-top:12px">
+          <div><label>Inisial Petugas</label><input id="inisial" placeholder="Contoh: AN" required></div>
+          <div><label>Suhu (°C)</label><input type="number" step="0.1" id="suhu" placeholder="Contoh: 25.5" required oninput="previewStatus()"></div>
+          <div><label>Kelembaban (%RH)</label><input type="number" step="0.1" id="kelembaban" placeholder="Contoh: 60" required oninput="previewStatus()"></div>
+          <div><label>Keterangan</label><input id="keterangan" placeholder="Normal / AC mati / ruangan lembap"></div>
+        </div>
+        <div class="status-row">
+          <div id="statusSuhuBox" class="status-box"><strong>Status Suhu</strong><span>Isi suhu terlebih dahulu.</span></div>
+          <div id="statusRhBox" class="status-box"><strong>Status Kelembaban</strong><span>Isi kelembaban terlebih dahulu.</span></div>
+        </div>
+        <div class="actions">
+          <button class="btn" type="submit">Simpan Data</button>
+          <button class="btn secondary" type="button" onclick="resetForm()">Reset Form</button>
+          <button class="btn secondary" type="button" onclick="downloadCSV()">Download CSV</button>
+          <button class="btn danger" type="button" onclick="clearLocalData()">Hapus Data Lokal</button>
+        </div>
+      </form>
+      <div id="inputMsg" class="message"></div>
+    </section>
 
-      <label for="suhu">Suhu Ruangan/Gudang (°C)</label>
-      <input type="number" id="suhu" name="suhu" step="0.1" placeholder="Contoh: 25.5" required />
-
-      <label for="kelembaban">Kelembaban Ruangan (%RH)</label>
-      <input type="number" id="kelembaban" name="kelembaban" step="0.1" placeholder="Contoh: 60" required />
-      <div class="note">Isi dalam persen kelembaban relatif, misalnya 55 atau 60.</div>
-
-      <label for="keterangan">Keterangan</label>
-      <textarea id="keterangan" name="keterangan" rows="3" placeholder="Contoh: kondisi normal / ruangan terasa lembap / AC mati"></textarea>
-
-      <label for="petugas">Nama Petugas</label>
-      <input type="text" id="petugas" name="petugas" placeholder="Nama petugas" required />
-
-      <button type="submit">Simpan Data</button>
-    </form>
-
-    <div class="status" id="status"></div>
-    <div class="footer">Data akan tersimpan ke Google Sheet sesuai nama gudang.</div>
-  </div>
-
-  <script>
-    // GANTI URL INI DENGAN URL WEB APP DARI GOOGLE APPS SCRIPT
-    const WEB_APP_URL = "PASTE_URL_APPS_SCRIPT_DI_SINI";
-
-    const tanggalInput = document.getElementById("tanggal");
-    const waktuInput = document.getElementById("waktu");
-
-    function isiTanggalWaktuOtomatis() {
-      const sekarang = new Date();
-      const yyyy = sekarang.getFullYear();
-      const mm = String(sekarang.getMonth() + 1).padStart(2, "0");
-      const dd = String(sekarang.getDate()).padStart(2, "0");
-      const jam = String(sekarang.getHours()).padStart(2, "0");
-      const menit = String(sekarang.getMinutes()).padStart(2, "0");
-
-      tanggalInput.value = `${yyyy}-${mm}-${dd}`;
-      waktuInput.value = `${jam}:${menit}`;
-    }
-
-    isiTanggalWaktuOtomatis();
-
-    document.getElementById("formRekap").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const form = e.target;
-      const status = document.getElementById("status");
-
-      if (WEB_APP_URL === "PASTE_URL_APPS_SCRIPT_DI_SINI") {
-        status.innerText = "URL Apps Script belum diganti.";
-        return;
-      }
-
-      const data = {
-        tanggal: form.tanggal.value,
-        waktu: form.waktu.value,
-        gudang: form.gudang.value,
-        suhu: form.suhu.value,
-        kelembaban: form.kelembaban.value,
-        keterangan: form.keterangan.value,
-        petugas: form.petugas.value
-      };
-
-      status.innerText = "Menyimpan data...";
-
-      fetch(WEB_APP_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-      })
-      .then(() => {
-        status.innerText = "Data berhasil disimpan.";
-        form.reset();
-        isiTanggalWaktuOtomatis();
-      })
-      .catch(() => {
-        status.innerText = "Gagal menyimpan data. Periksa koneksi atau URL Apps Script.";
-      });
-    });
-  </script>
+    <section class="card">
+      <h3 class="section-title">Rekap Monitoring</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bulan</th><th>Tanggal</th><th>Jam</th><th>Gudang</th><th>Suhu</th><th>Status Suhu</th><th>Kelembaban</th><th>Status RH</th><th>Petugas</th><th>Keterangan</th></tr></thead>
+          <tbody id="rekapBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+const GUDANG_LIST=["Gudang Bahan Makanan Basah","Gudang Bahan Makanan Kering","Dapur Susu","Dapur Pemasak","Ruangan Ahli Gizi"];
+const LS_DATA="kontrolSuhuV5Data";const LS_SET="kontrolSuhuV5Settings";
+function $(id){return document.getElementById(id)}
+function today(){return new Date().toISOString().slice(0,10)}
+function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+":"+String(d.getMinutes()).padStart(2,'0')}
+function monthNow(){return new Date().toISOString().slice(0,7)}
+function daysInMonth(ym){const [y,m]=ym.split('-').map(Number);return new Date(y,m,0).getDate()}
+function getData(){return JSON.parse(localStorage.getItem(LS_DATA)||"[]")}
+function setData(d){localStorage.setItem(LS_DATA,JSON.stringify(d))}
+function getSettings(){return JSON.parse(localStorage.getItem(LS_SET)||"{}")}
+function init(){GUDANG_LIST.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=g;$('gudang').appendChild(o)});$('tanggal').value=today();$('jam').value=nowTime();$('bulanRekap').value=monthNow();loadSettings();renderAll();previewStatus()}
+function saveSettings(){const s={namaRS:$('namaRS').value,subUnit:$('subUnit').value,lokasiTTD:$('lokasiTTD').value,koordinator:$('koordinator').value,pj:$('pj').value,tglTTD:$('tglTTD').value,scriptUrl:$('scriptUrl').value};localStorage.setItem(LS_SET,JSON.stringify(s));msg('settingMsg','Pengaturan berhasil disimpan.','ok');applySettings()}
+function loadSettings(){const s=getSettings();Object.keys(s).forEach(k=>{if($(k))$(k).value=s[k]});applySettings()}
+function applySettings(){const rs=$('namaRS').value||'Rumah Sakit';const su=$('subUnit').value||'Instalasi Gizi';$('subJudul').textContent=`${rs} - ${su}. Rekap suhu dan kelembaban ruangan.`}
+function cekSuhu(g,s){s=parseFloat(s);if(isNaN(s))return {txt:'Belum diisi',cls:''};if(g.includes('Dapur Susu'))return s>=2&&s<=8?{txt:'Sesuai',cls:'ok'}:{txt:'Tidak Sesuai',cls:'bad'};if(g.includes('Basah'))return s>=0&&s<=10?{txt:'Sesuai',cls:'ok'}:{txt:'Tidak Sesuai',cls:'bad'};if(g.includes('Kering')||g.includes('Pemasak')||g.includes('Ahli Gizi'))return s>=18&&s<=30?{txt:'Sesuai',cls:'ok'}:{txt:'Tidak Sesuai',cls:'bad'};return s>=18&&s<=30?{txt:'Sesuai',cls:'ok'}:{txt:'Tidak Sesuai',cls:'bad'}}
+function cekRH(g,r){r=parseFloat(r);if(isNaN(r))return {txt:'Belum diisi',cls:''};if(g.includes('Kering'))return r<=70?{txt:'Sesuai',cls:'ok'}:{txt:'Tidak Sesuai',cls:'bad'};return r<=80?{txt:'Sesuai',cls:'ok'}:{txt:'Tidak Sesuai',cls:'bad'}}
+function previewStatus(){const g=$('gudang').value||GUDANG_LIST[0];const ss=cekSuhu(g,$('suhu').value);const sr=cekRH(g,$('kelembaban').value);setBox('statusSuhuBox','Status Suhu',ss.txt,ss.cls);setBox('statusRhBox','Status Kelembaban',sr.txt,sr.cls)}
+function setBox(id,title,text,cls){const el=$(id);el.className='status-box '+cls;el.innerHTML=`<strong>${title}</strong><span>${text}</span>`}
+$('gudang').addEventListener('change',previewStatus);
+$('formInput').addEventListener('submit',async e=>{e.preventDefault();const g=$('gudang').value;const suhu=$('suhu').value;const rh=$('kelembaban').value;const row={bulan:$('bulanRekap').value,tanggal:$('tanggal').value,jam:$('jam').value,gudang:g,suhu:suhu,statusSuhu:cekSuhu(g,suhu).txt,kelembaban:rh,statusKelembaban:cekRH(g,rh).txt,inisial:$('inisial').value,keterangan:$('keterangan').value,timestamp:new Date().toISOString()};const data=getData();data.push(row);setData(data);renderAll();await sendOnline(row);msg('inputMsg','Data berhasil disimpan.','ok');$('suhu').value='';$('kelembaban').value='';$('keterangan').value='';previewStatus()});
+async function sendOnline(row){const url=$('scriptUrl').value.trim();if(!url)return;try{await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(row)});$('modeBadge').textContent='Mode online'}catch(e){msg('inputMsg','Data tersimpan lokal, tetapi gagal dikirim online.','bad')}}
+async function testConnection(){const url=$('scriptUrl').value.trim();if(!url){msg('settingMsg','URL Apps Script belum diisi.','bad');return}try{await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({test:true,gudang:'Tes Koneksi',tanggal:today(),jam:nowTime(),suhu:'0',kelembaban:'0',inisial:'TEST',keterangan:'Tes koneksi dari aplikasi v5'})});msg('settingMsg','Tes koneksi dikirim. Cek Google Sheet apakah data TEST masuk.','ok')}catch(e){msg('settingMsg','Tes koneksi gagal. Periksa URL Web App.','bad')}}
+function loadOnlineData(){msg('settingMsg','Untuk mengambil data online, gunakan tombol Ambil Data jika Apps Script sudah menyediakan doGet. Versi ini tetap aman menyimpan data lokal.','ok')}
+function renderAll(){renderDashboard();renderTable()}
+function renderDashboard(){const data=getData();const m=$('bulanRekap').value||monthNow();const total=daysInMonth(m);$('dashboard').innerHTML='';GUDANG_LIST.forEach(g=>{const rows=data.filter(r=>r.bulan===m&&r.gudang===g);const hari=[...new Set(rows.map(r=>r.tanggal))].length;const last=rows[rows.length-1];const div=document.createElement('div');div.className='dash-item';div.innerHTML=`<strong>${g}</strong><span>${hari}/${total} hari terisi</span><div class="small-status">Suhu: ${last?last.suhu+'°C ('+last.statusSuhu+')':'-'}</div><div class="small-status">RH: ${last?last.kelembaban+'% ('+last.statusKelembaban+')':'-'}</div>`;$('dashboard').appendChild(div)})}
+function renderTable(){const data=getData().slice().reverse();$('rekapBody').innerHTML=data.map(r=>`<tr><td>${r.bulan||''}</td><td>${r.tanggal||''}</td><td>${r.jam||''}</td><td>${r.gudang||''}</td><td>${r.suhu||''}</td><td>${r.statusSuhu||''}</td><td>${r.kelembaban||''}</td><td>${r.statusKelembaban||''}</td><td>${r.inisial||''}</td><td>${r.keterangan||''}</td></tr>`).join('')}
+function resetForm(){$('formInput').reset();$('tanggal').value=today();$('jam').value=nowTime();$('bulanRekap').value=monthNow();previewStatus()}
+function clearLocalData(){if(confirm('Hapus semua data lokal di browser ini?')){setData([]);renderAll();msg('inputMsg','Data lokal berhasil dihapus.','ok')}}
+function downloadCSV(){const rows=getData();const header=['Bulan','Tanggal','Jam','Gudang','Suhu','Status Suhu','Kelembaban','Status Kelembaban','Petugas','Keterangan'];const csv=[header,...rows.map(r=>[r.bulan,r.tanggal,r.jam,r.gudang,r.suhu,r.statusSuhu,r.kelembaban,r.statusKelembaban,r.inisial,r.keterangan])].map(a=>a.map(v=>'"'+String(v||'').replaceAll('"','""')+'"').join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rekap-suhu-kelembaban-v5.csv';a.click()}
+function msg(id,text,type){$(id).textContent=text;$(id).className='message '+type}
+$('bulanRekap').addEventListener('change',renderAll);init();
+</script>
 </body>
 </html>
